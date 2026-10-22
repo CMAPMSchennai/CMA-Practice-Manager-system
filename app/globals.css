@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* UI Version 3 — Classic navy, calm cool background, colour that carries meaning */
+    --background: 216 38% 96%;
+    --foreground: 219 46% 16%;
+    --card: 0 0% 100%;
+    --card-foreground: 219 46% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 219 46% 16%;
+    --primary: 215 66% 27%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 38% 93%;
+    --secondary-foreground: 219 46% 16%;
+    --muted: 216 38% 93%;
+    --muted-foreground: 218 19% 38%;
+    --accent: 211 59% 40%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 3 72% 37%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 33% 89%;
+    --input: 218 20% 64%;
+    --ring: 215 66% 27%;
+    --radius: 0.625rem;
+    --header: 215 66% 27%;
+    --header-foreground: 0 0% 100%;
+    --chart-1: 205 94% 35%;
+    --chart-2: 141 64% 27%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 214 100% 22%;
+    --chart-5: 340 75% 55%;
+
+    --font-sans: 'Inter', var(--font-sans-default, ui-sans-serif, system-ui, sans-serif);
+    --font-heading: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    /* Scrollbar Variables */
+    --scrollbar-thumb: hsl(var(--muted-foreground) / 0.3);
+    --scrollbar-track: transparent;
+
+    /* Status colours (UI Version 3): green done, blue information, amber take care,
+       coral act today, deep red overdue. Always paired with an icon and a word. */
+    --st-ok: 156 72% 19%;      --st-ok-bg: 150 48% 85%;
+    --st-calm: 211 78% 28%;    --st-calm-bg: 210 78% 88%;
+    --st-warn: 34 100% 19%;    --st-warn-bg: 43 100% 80%;
+    --st-urgent: 10 72% 31%;   --st-urgent-bg: 9 78% 87%;
+    --st-over: 3 78% 30%;      --st-over-bg: 4 72% 85%;
+    --st-over-solid: 3 74% 36%;
+    --st-neutral: 215 24% 27%; --st-neutral-bg: 215 20% 87%;
+    /* The one warm "next step" button per screen */
+    --cta: 41 100% 48%; --cta-fg: 40 100% 8%;
+  }
+
+  .dark {
+    --background: 220 48% 9%;
+    --foreground: 210 40% 98%;
+    --card: 221 41% 13%;
+    --card-foreground: 210 40% 98%;
+    --popover: 221 41% 13%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 205 94% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 16% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 16% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 205 94% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 16% 22%;
+    --input: 220 16% 22%;
+    --ring: 205 94% 45%;
+    --header: 217 66% 17%;
+    --header-foreground: 0 0% 100%;
+    --chart-1: 205 94% 50%;
+    --chart-2: 141 64% 40%;
+    --chart-3: 35 85% 60%;
+    --chart-4: 214 80% 50%;
+    --chart-5: 340 75% 60%;
+
+    /* Dark Mode Scrollbar Variables */
+    --scrollbar-thumb: hsl(var(--muted-foreground) / 0.4);
+    --scrollbar-track: transparent;
+
+    --st-ok: 151 62% 78%;      --st-ok-bg: 150 45% 13%;
+    --st-calm: 211 88% 82%;    --st-calm-bg: 214 52% 17%;
+    --st-warn: 40 92% 74%;     --st-warn-bg: 40 66% 13%;
+    --st-urgent: 10 88% 80%;   --st-urgent-bg: 10 52% 16%;
+    --st-over: 3 90% 84%;      --st-over-bg: 3 52% 17%;
+    --st-over-solid: 3 70% 45%;
+    --st-neutral: 215 22% 80%; --st-neutral-bg: 220 16% 17%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-width: thin;
+  }
+  
+  @supports not (scrollbar-color: auto) {
+    *::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    *::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 9999px;
+    }
+    *::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-sans);
+  }
+  /* Headings pick up the theme's heading face globally, so a generated
+     page gets consistent typography without each component opting in. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Dark mode for screens that hard-code light colours (Gap #45).
+   Sign-in screens use fixed white / grey / navy; status boxes use fixed
+   light tints. Unlayered on purpose so these win over those utilities.
+   ------------------------------------------------------------------ */
+.dark .bg-white { background-color: hsl(var(--card)); }
+.dark .text-\[\#333333\] { color: hsl(var(--foreground)); }
+.dark .text-\[\#666666\] { color: hsl(var(--muted-foreground)); }
+.dark .text-\[\#888888\] { color: hsl(215 15% 62%); }
+.dark .text-\[\#002d72\] { color: hsl(210 90% 72%); }
+.dark .text-\[\#056dae\] { color: hsl(205 90% 66%); }
+.dark .text-\[\#d60000\] { color: hsl(0 85% 72%); }
+.dark .text-\[\#006e0a\] { color: hsl(142 55% 62%); }
+.dark .border-\[\#888888\] { border-color: hsl(220 16% 32%); }
+.dark .placeholder\:text-\[\#888888\]::placeholder { color: hsl(215 15% 55%); }
+
+.dark .bg-amber-50, .dark .bg-amber-100 { background-color: hsl(38 70% 14%); }
+.dark .border-amber-200 { border-color: hsl(38 55% 28%); }
+.dark .text-amber-700, .dark .text-amber-800 { color: hsl(38 90% 72%); }
+
+.dark .bg-green-50, .dark .bg-green-100 { background-color: hsl(142 40% 12%); }
+.dark .border-green-200 { border-color: hsl(142 35% 26%); }
+.dark .text-green-700, .dark .text-green-800 { color: hsl(142 60% 70%); }
+
+.dark .bg-red-50, .dark .bg-red-100 { background-color: hsl(0 45% 14%); }
+.dark .border-red-200 { border-color: hsl(0 40% 28%); }
+.dark .text-red-700, .dark .text-red-800 { color: hsl(0 85% 75%); }
+
+.dark .bg-blue-50, .dark .bg-blue-100 { background-color: hsl(214 50% 15%); }
+.dark .border-blue-200 { border-color: hsl(214 45% 30%); }
+.dark .text-blue-700, .dark .text-blue-800 { color: hsl(210 90% 75%); }
+
+.dark .bg-orange-50, .dark .bg-orange-100 { background-color: hsl(25 65% 14%); }
+.dark .border-orange-200 { border-color: hsl(25 55% 28%); }
+.dark .text-orange-700, .dark .text-orange-800 { color: hsl(25 90% 72%); }
+
+/* ------------------------------------------------------------------
+   Printing / Save as PDF (FR-24): drop the menu and top bar and let the
+   page run to its full length.
+   ------------------------------------------------------------------ */
+@media print {
+  aside,
+  header { display: none !important; }
+  .h-screen { height: auto !important; }
+  .overflow-hidden,
+  .overflow-y-auto { overflow: visible !important; }
+  body { background: #fff !important; color: #000 !important; }
+}

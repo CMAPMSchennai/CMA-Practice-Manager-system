@@ -1,0 +1,197 @@
+# App knowledge — 495471c5-2b02-4aa6-af92-372bb8e13e5e
+
+_Auto-generated after each build from the app's persisted files. Do not hand-edit — it is regenerated automatically. Treat it as the authoritative orientation map; read individual files only when you need their contents._
+
+## Pages (41)
+- app/(auth)/change-password/page.tsx
+- app/(auth)/forgot-password/page.tsx
+- app/(auth)/login/page.tsx
+- app/(auth)/signup/page.tsx
+- app/(protected)/dashboard/billing/invoices/[id]/page.tsx
+- app/(protected)/dashboard/billing/invoices/new/page.tsx
+- app/(protected)/dashboard/billing/page.tsx
+- app/(protected)/dashboard/clients/[id]/page.tsx
+- app/(protected)/dashboard/clients/groups/page.tsx
+- app/(protected)/dashboard/clients/onboarding/page.tsx
+- app/(protected)/dashboard/clients/page.tsx
+- app/(protected)/dashboard/compliance/page.tsx
+- app/(protected)/dashboard/employees/[id]/edit/page.tsx
+- app/(protected)/dashboard/employees/[id]/page.tsx
+- app/(protected)/dashboard/employees/me/page.tsx
+- app/(protected)/dashboard/employees/onboarding/page.tsx
+- app/(protected)/dashboard/employees/page.tsx
+- app/(protected)/dashboard/engagements/[id]/page.tsx
+- app/(protected)/dashboard/engagements/page.tsx
+- app/(protected)/dashboard/finance/page.tsx
+- app/(protected)/dashboard/libraries/page.tsx
+- app/(protected)/dashboard/page.tsx
+- app/(protected)/dashboard/payroll/page.tsx
+- app/(protected)/dashboard/reports/page.tsx
+- app/(protected)/dashboard/security/page.tsx
+- app/(protected)/dashboard/service-types/page.tsx
+- app/(protected)/dashboard/settings/clear-test-data/page.tsx
+- app/(protected)/dashboard/settings/document-types/page.tsx
+- app/(protected)/dashboard/settings/entities/[id]/page.tsx
+- app/(protected)/dashboard/settings/entities/page.tsx
+- app/(protected)/dashboard/settings/gst-rates/page.tsx
+- app/(protected)/dashboard/settings/integrations/page.tsx
+- app/(protected)/dashboard/settings/migration/page.tsx
+- app/(protected)/dashboard/settings/page.tsx
+- app/(protected)/dashboard/settings/reference-data/page.tsx
+- app/(protected)/dashboard/settings/roles/page.tsx
+- app/(protected)/dashboard/settings/users/page.tsx
+- app/(protected)/dashboard/tasks/page.tsx
+- app/onboarding/[token]/page.tsx
+- app/page.tsx
+- app/reset-password/[token]/page.tsx
+
+## API routes (120)
+- app/api/account/change-password/route.ts — POST /api/account/change-password — the signed-in user sets their own password
+- app/api/activity/route.ts — GET /api/activity — the live activity feed on the Managing Partner dashboard
+- app/api/audit-logs/route.ts — GET  /api/audit-logs — query audit logs (immutable, no POST allowed)
+- app/api/audit-logs/verify/route.ts — GET /api/audit-logs/verify  checks the audit trail's hash chain (FR-02)
+- app/api/auth/[...nextauth]/route.ts
+- app/api/auth/forgot-password/route.ts
+- app/api/auth/platform/[provider]/start/route.ts
+- app/api/auth/reset-password/route.ts
+- app/api/auth/signup/route.ts
+- app/api/client-groups/[id]/route.ts — PATCH  /api/client-groups/:id   { name?, description?, add_client_ids?, remove_client_ids? }
+- app/api/client-groups/route.ts — GET  /api/client-groups   every group with its member clients (FR-29)
+- app/api/clients/[id]/checklist-override/route.ts — POST /api/clients/:id/checklist-override
+- app/api/clients/[id]/checklist/route.ts — GET   /api/clients/:id/checklist  the nine onboarding items with progress (FR-34)
+- app/api/clients/[id]/conflict-check/route.ts — GET /api/clients/:id/conflict-check — check for related-party conflicts
+- app/api/clients/[id]/filing-cabinet/route.ts — GET /api/clients/:id/filing-cabinet
+- app/api/clients/[id]/route.ts — GET   /api/clients/:id — get client detail
+- app/api/clients/bulk/route.ts — GET  /api/clients/bulk   the choices for the bulk dialogs: partners, services, entities
+- app/api/clients/directory/route.ts — GET /api/clients/directory?tab=&q=&status=  (FR-25, FR-26, FR-27)
+- app/api/clients/route.ts — POST /api/clients — create a new client
+- app/api/compliance/erasure-request/route.ts — POST /api/compliance/erasure-request — DPDP Act erasure request
+- app/api/dashboard/export/route.ts — GET /api/dashboard/export?period=YYYY-MM — the whole dashboard for the month
+- app/api/dashboard/kpis/route.ts — GET /api/dashboard/kpis?period=YYYY-MM
+- app/api/dashboard/overview/route.ts — GET /api/dashboard/overview?period=YYYY-MM — everything the Managing Partner
+- app/api/dashboard/salary-readiness/route.ts — GET /api/dashboard/salary-readiness?period=YYYY-MM
+- app/api/dashboard/trend/route.ts — GET /api/dashboard/trend?period=YYYY-MM
+- app/api/delay-reason-dispositions/[id]/route.ts — PATCH /api/delay-reason-dispositions/:id — partner action on a logged delay reason (FR-59, FR-60)
+- app/api/delay-reason-dispositions/route.ts
+- app/api/document-types/route.ts — GET   /api/document-types   the document types and the category each belongs to
+- app/api/documents/[id]/download/route.ts
+- app/api/documents/[id]/route.ts — DELETE /api/documents/:id
+- app/api/documents/[id]/verify/route.ts — POST /api/documents/:id/verify  { action, peer_id? }  (FR-63, added feature A4)
+- app/api/documents/route.ts
+- app/api/documents/upload-file/route.ts
+- app/api/dropbox/connect/route.ts
+- app/api/dropbox/diagnose/route.ts
+- app/api/dropbox/status/route.ts
+- app/api/dropbox/test-folder/route.ts
+- app/api/email/test/route.ts — POST /api/email/test   { to }
+- app/api/employees/[id]/checklist/route.ts — GET  /api/employees/:id/checklist — fetch employee onboarding checklist items
+- app/api/employees/[id]/performance-notes/route.ts — GET /api/employees/:id/performance-notes — partner counselling notes for an
+- app/api/employees/[id]/route.ts
+- app/api/employees/mentors/route.ts
+- app/api/employees/route.ts
+- app/api/engagements/[id]/instantiate-library/route.ts
+- app/api/engagements/[id]/route.ts
+- app/api/engagements/[id]/team/route.ts
+- app/api/engagements/clear-test-data/route.ts
+- app/api/engagements/recurring/run/route.ts
+- app/api/engagements/route.ts
+- app/api/entities/[id]/route.ts
+- app/api/entities/bank-accounts/route.ts
+- app/api/entities/route.ts
+- app/api/expenses/route.ts
+- app/api/finance/entity-detail/route.ts
+- app/api/finance/pl/route.ts
+- app/api/invoices/[id]/route.ts
+- app/api/invoices/ar-ageing/route.ts
+- app/api/invoices/reminders/route.ts
+- app/api/invoices/route.ts
+- app/api/invoices/summary/route.ts
+- …and 60 more routes
+
+## Components (136)
+- components/AuthSessionProvider.tsx
+- components/auth/AuthForm.tsx
+- components/auth/ChangePasswordForm.tsx
+- components/auth/SignOutButton.tsx
+- components/auth/SocialSignInButtons.tsx
+- components/billing/InvoiceForm.tsx
+- components/billing/InvoicePreviewDialog.tsx
+- components/billing/InvoicesTable.tsx
+- components/billing/ReceiptRecordingDialog.tsx
+- components/billing/RemindersPanel.tsx
+- components/billing/cells/AmountCell.tsx
+- components/billing/cells/InvoiceStatusCell.tsx
+- components/clients/ClientActivityTimeline.tsx
+- components/clients/ClientForm.tsx
+- components/clients/ClientSubmissionCard.tsx
+- components/clients/ClientWorkTabs.tsx
+- components/clients/ClientsTable.tsx
+- components/clients/FilingCabinet.tsx
+- components/clients/cells/OnboardingStatusCell.tsx
+- components/compliance/ComplianceDueDatesTable.tsx
+- components/compliance/cells/ComplianceStatusCell.tsx
+- components/compliance/cells/EscalationCell.tsx
+- components/dashboard/ActivityFeed.tsx
+- components/dashboard/OverviewVisuals.tsx
+- components/dashboard/TodaySection.tsx
+- components/dashboard/UpcomingWork.tsx
+- components/data/ActionButton.tsx
+- components/data/CartProvider.tsx
+- components/data/DataForm.tsx
+- components/data/FilterTable.tsx
+- components/documents/DocumentVault.tsx
+- components/employees/EmployeeChecklistPanel.tsx
+- components/employees/EmployeeForm.tsx
+- components/employees/EmployeeLoginAccessCard.tsx
+- components/employees/EmployeeMoreDetails.tsx
+- components/employees/EmployeePayIdCard.tsx
+- components/employees/EmployeePerformanceNotes.tsx
+- components/engagements/AreaAssignDialog.tsx
+- components/engagements/ClientPicker.tsx
+- components/engagements/EngagementForm.tsx
+- components/engagements/EngagementLifecycle.tsx
+- components/engagements/EngagementTeamPanel.tsx
+- components/engagements/EngagementsTable.tsx
+- components/engagements/TaskPanel.tsx
+- components/engagements/cells/EngagementStatusCell.tsx
+- components/engagements/cells/ProgressCell.tsx
+- components/finance/ExpenseEntryDialog.tsx
+- components/finance/ExpensesTable.tsx
+- components/layout/AppShell.tsx
+- components/layout/HelpDrawer.tsx
+- components/layout/IdleLogout.tsx
+- components/layout/NotificationBell.tsx
+- components/layout/ProtectedShell.tsx
+- components/layout/ThemeToggle.tsx
+- components/libraries/LibraryDetail.tsx
+- components/onboarding/PublicOnboardingForm.tsx
+- components/payroll/DispositionActionDrawer.tsx
+- components/payroll/PayrollReadinessTable.tsx
+- components/payroll/PayrollReleaseDialog.tsx
+- components/payroll/cells/CompletionPctCell.tsx
+- …and 76 more components
+
+## Lib / helpers (79)
+- lib/access-scope.ts — exports: ScopeMode, AccessScope, getAccessScope, clientVisibleSql, engagementVisibleSql, taskVisibleSql, canSeeClient, canSeeEngagement — Record-level visibility (FR-03, NFR-07, AC-10; Gaps #25 and #26)
+- lib/activity-feed.ts — exports: ActivityKind, ActivityEvent, buildActivity — Live activity feed for the Managing Partner dashboard (added feature outside
+- lib/app-settings.ts — exports: AutomationSettings, DEFAULT_AUTOMATION, sanitizeAutomation, getAutomationSettings, defaultTaskDueDate, saveAutomationSettings — Firm-wide automation settings (Gaps #49, #54), kept as one hidden row in
+- lib/articleship-alert.ts — exports: runArticleshipAlerts, maybeRunArticleshipAlerts — Articleship-ending alerts (FR-41, added feature)
+- lib/audit.ts — exports: AuditLogEntry, createAuditLog, ChainReport, verifyAuditChain, queryAuditLogs — Audit trail (FR-02)
+- lib/auth-config.ts — exports: isPublicSignupEnabled, isE2bSandbox, isEmailPasswordEnabled, isGoogleAuthEnabled, isGooglePlatformMode, isMicrosoftAuthEnabled, isMicrosoftPlatformMode, authConfig — Centralized NextAuth configuration (v5 / Auth
+- lib/auth-helpers.ts
+- lib/auth-session-cookie.ts
+- lib/auth.ts
+- lib/authorize.ts
+- lib/client-checklist.ts — exports: CLIENT_CHECKLIST, CONFLICT_CODE, PARTNER_CODE, MANUAL_CODES, checklistLabel, ChecklistRow, getChecklist, openItems — Client onboarding checklist (FR-34, FR-35, FR-36; Gap #27)
+- lib/client-directory.ts — exports: DirectoryTab, tabOfEntityType, areaOfAddress — Client directory helpers (FR-25 to FR-27)
+- lib/client-form-notify.ts — exports: notifyClientFormSubmitted — Tells the right people when a client finishes their onboarding form
+- lib/dashboard-overview.ts — exports: Line, FinanceSection, TeamRow, TaskRow, Overview, buildOverview — Managing Partner dashboard figures for one month (FR-16 to FR-23)
+- lib/dashboard-trend.ts — exports: TrendMonth, buildTrend — Six months of firm figures ending at the chosen month, for the dashboard charts
+- lib/data/task-libraries-internal.ts — exports: INTERNAL_AUDIT_LIBRARIES — Generated from "CMA Workflow Automation
+- lib/data/task-libraries-oem.ts — exports: OEM_LIBRARIES — Generated from "CMA Workflow Automation
+- lib/data/task-libraries-statutory.ts — exports: STATUTORY_LIBRARIES — Generated from "CMA Workflow Automation
+- lib/doc-verification.ts — exports: DocAction, isStepTwoRole, teamManagers, actionsFor, notifyUsers, managingPartnerIds — Two-step verification of documents (added feature outside the PDF, A4)
+- lib/document-categories.ts — exports: DOCUMENT_CATEGORIES, DocumentCategory, DEFAULT_DOCUMENT_TYPES, isCategory — Document categories (DM-10, FR-63; Gap C4, accepted by the firm 16 Oct 2026)
+- lib/document-expiry.ts — exports: ExpiryResult, runDocumentExpiry, maybeRunDocumentExpiry — Expiry alerts for documents (FR-64)
+- lib/document-meta.ts — exports: DocMeta, getDocMeta, patchDocMeta — Extra facts about a document: its category, who verified it and w
+…(truncated)
