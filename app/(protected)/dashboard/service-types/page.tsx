@@ -36,7 +36,13 @@ interface ServiceType {
   standard_fee: number | null;
   sac_code: string | null;
   is_active: boolean;
+  /** Set by the firm: a checklist job, a simple job, or null (whoever creates the job chooses). */
+  job_type?: "checklist" | "simple" | null;
 }
+
+type Draft = { fee: string; sac: string; active: boolean; job: "checklist" | "simple" | "ask" };
+
+const JOB_TYPE_LABEL: Record<string, string> = { checklist: "Checklist job", simple: "Simple job" };
 
 export default function ServiceTypesPage() {
   const [services, setServices] = useState<ServiceType[]>([]);
@@ -48,7 +54,7 @@ export default function ServiceTypesPage() {
   const [canEdit, setCanEdit] = useState(false);
   const [editMode, setEditMode] = useState(false);
   // Edits are held here until Save: service id -> typed fee, SAC code and whether it is in use.
-  const [drafts, setDrafts] = useState<Record<string, { fee: string; sac: string; active: boolean }>>({});
+  const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [saving, setSaving] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [pasteInfo, setPasteInfo] = useState<{ matched: number; unmatched: string[] } | null>(null);
@@ -69,10 +75,15 @@ export default function ServiceTypesPage() {
 
   useEffect(load, []);
 
-  const draftOf = (s: ServiceType) =>
-    drafts[s.id] ?? { fee: s.standard_fee == null ? "" : String(s.standard_fee), sac: s.sac_code ?? "", active: s.is_active };
+  const draftOf = (s: ServiceType): Draft =>
+    drafts[s.id] ?? {
+      fee: s.standard_fee == null ? "" : String(s.standard_fee),
+      sac: s.sac_code ?? "",
+      active: s.is_active,
+      job: s.job_type ?? "ask",
+    };
 
-  function setDraft(s: ServiceType, patch: Partial<{ fee: string; sac: string; active: boolean }>) {
+  function setDraft(s: ServiceType, patch: Partial<Draft>) {
     setDrafts((d) => ({ ...d, [s.id]: { ...draftOf(s), ...patch } }));
   }
 
@@ -110,7 +121,7 @@ export default function ServiceTypesPage() {
       .filter((s) => drafts[s.id])
       .map((s) => {
         const d = drafts[s.id];
-        return { id: s.id, standard_fee: d.fee.trim() === "" ? null : Number(d.fee), sac_code: d.sac.trim() === "" ? null : d.sac.trim(), is_active: d.active };
+        return { id: s.id, standard_fee: d.fee.trim() === "" ? null : Number(d.fee), sac_code: d.sac.trim() === "" ? null : d.sac.trim(), is_active: d.active, job_type: d.job };
       });
     if (updates.length === 0) {
       toast.message("Nothing has changed.");
@@ -301,6 +312,7 @@ export default function ServiceTypesPage() {
                       <th className="px-4 py-2 font-medium">Service</th>
                       <th className="px-4 py-2 font-medium w-40">Standard fee (₹)</th>
                       <th className="px-4 py-2 font-medium w-32">SAC code</th>
+                      <th className="px-4 py-2 font-medium w-40">Job type</th>
                       <th className="px-4 py-2 font-medium w-24">In use</th>
                     </tr>
                   </thead>
@@ -334,6 +346,18 @@ export default function ServiceTypesPage() {
                               onChange={(e) => setDraft(s, { sac: e.target.value })}
                               className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground"
                             />
+                          </td>
+                          <td className="px-4 py-1.5">
+                            <select
+                              aria-label={`Job type for ${s.name}`}
+                              value={d.job}
+                              onChange={(e) => setDraft(s, { job: e.target.value as Draft["job"] })}
+                              className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                            >
+                              <option value="ask">Ask each time</option>
+                              <option value="checklist">Checklist job</option>
+                              <option value="simple">Simple job</option>
+                            </select>
                           </td>
                           <td className="px-4 py-1.5">
                             <input
@@ -419,6 +443,9 @@ export default function ServiceTypesPage() {
                       )}
                       {svc.is_recurring && (
                         <Badge variant="outline" className="text-xs">Recurring</Badge>
+                      )}
+                      {svc.job_type && (
+                        <Badge variant="outline" className="text-xs">{JOB_TYPE_LABEL[svc.job_type]}</Badge>
                       )}
                       {!svc.is_active && (
                         <Badge variant="destructive" className="text-xs">Inactive</Badge>
@@ -509,6 +536,10 @@ export default function ServiceTypesPage() {
                 <div className="grid grid-cols-2 gap-2 py-2">
                   <dt className="text-sm text-muted-foreground">Recurring</dt>
                   <dd className="text-sm font-medium">{selected.is_recurring ? "Yes" : "No"}</dd>
+                </div>
+                <div className="grid grid-cols-2 gap-2 py-2">
+                  <dt className="text-sm text-muted-foreground">Job type</dt>
+                  <dd className="text-sm font-medium">{selected.job_type ? JOB_TYPE_LABEL[selected.job_type] : "Ask each time"}</dd>
                 </div>
               </dl>
               {oemChildren[selected.id]?.length > 0 && (

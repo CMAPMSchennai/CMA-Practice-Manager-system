@@ -14,6 +14,7 @@ import { getUserRoleName, userHasPermission } from "@/lib/rbac";
 import { getVisibilitySettings } from "@/lib/visibility-settings";
 import { query } from "@/lib/db";
 import { createAuditLog } from "@/lib/audit";
+import { getJobTypes, saveJobTypes } from "@/lib/job-type";
 
 /**
  * The firm's first rate sheet (rate.xlsx, "Billing master", received 15 Oct 2026): 21 services
@@ -250,6 +251,7 @@ export async function GET(req: NextRequest) {
     // Auto-seed if needed
     await seedServiceTypes();
     await seedStandardFees();
+    const jobTypes = await getJobTypes();
 
     const conditions: string[] = [];
     const values: unknown[] = [];
@@ -298,9 +300,9 @@ export async function GET(req: NextRequest) {
       roleName === "manager"
         ? (await getVisibilitySettings()).settings.managers_see_standard_fees
         : await userHasPermission(session.id, "view_billing");
-    const visible = feeVisible
-      ? rows
-      : (rows as Record<string, unknown>[]).map((r) => ({ ...r, standard_fee: null }));
+    // Checklist or simple job, set per service (null = ask whoever creates the job).
+    const withJobType = (rows as Record<string, unknown>[]).map((r) => ({ ...r, job_type: jobTypes[String(r.id)] ?? null }));
+    const visible = feeVisible ? withJobType : withJobType.map((r) => ({ ...r, standard_fee: null }));
 
     const canEdit = await userHasPermission(session.id, "manage_settings");
     return NextResponse.json({ service_types: visible, total: visible.length, can_edit: canEdit });
@@ -329,7 +331,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = (await req.json().catch(() => ({}))) as {
-      updates?: { id?: string; standard_fee?: number | string | null; sac_code?: string | null; is_active?: boolean }[];
+      updates?: { id?: string; standard_fee?: number | string | null; sac_code?: string | null; is_active?: boolean; job_type?: string }[];
     };
     const updates = Array.isArray(body.updates) ? body.updates : [];
     if (updates.length === 0) return NextResponse.json({ error: "Nothing to save." }, { status: 422 });
@@ -338,6 +340,8 @@ export async function PATCH(req: NextRequest) {
     let changed = 0;
     let unchanged = 0;
     const missing: string[] = [];
+    const jobTypes = await getJobTypes();
+    let jobChanged = false;
 
     for (const u of updates) {
       if (!u.id) continue;
@@ -384,11 +388,25 @@ export async function PATCH(req: NextRequest) {
         changes.is_active = { before: c.is_active, after: u.is_active };
       }
 
-      if (sets.length === 0) {
+      if ("job_type" in u) {
+        // "ask" (or anything else) clears it, so the person creating the job chooses.
+        const next = u.job_type === "checklist" || u.job_type === "simple" ? u.job_type : null;
+        const before = jobTypes[c.id] ?? null;
+        if (next !== before) {
+          if (next) jobTypes[c.id] = next;
+          else delete jobTypes[c.id];
+          jobChanged = true;
+          changes.job_type = { before, after: next };
+        }
+      }
+
+      if (Object.keys(changes).length === 0) {
         unchanged++;
         continue;
       }
-      await query(`UPDATE service_types SET ${sets.join(", ")}, updated_at = now() WHERE id = $1`, vals);
+      if (sets.length > 0) {
+        await query(`UPDATE service_types SET ${sets.join(", ")}, updated_at = now() WHERE id = $1`, vals);
+      }
       await createAuditLog({
         action: "update",
         entity_type: "service_type",
@@ -401,6 +419,7 @@ export async function PATCH(req: NextRequest) {
       changed++;
     }
 
+    if (jobChanged) await saveJobTypes(jobTypes);
     return NextResponse.json({ changed, unchanged, missing: missing.length });
   } catch (err) {
     console.error("PATCH /api/service-types error:", err);

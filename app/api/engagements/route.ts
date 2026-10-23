@@ -6,6 +6,9 @@ import { engagementVisibleSql, getAccessScope } from "@/lib/access-scope";
 import { nextEngagementCode } from "@/lib/engagement-code";
 import { maybeRunRecurring } from "@/lib/recurring-engagements";
 import { FEE_BASES } from "@/lib/fee-basis";
+import { getJobTypes } from "@/lib/job-type";
+import { pickLibraryFor } from "@/lib/library-pick";
+import { instantiateLibraryOnEngagement } from "@/lib/instantiate-library";
 
 /**
  * GET /api/engagements — list engagements (filterable)
@@ -163,8 +166,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Gap #78: the person creating the job must say whether it needs a checklist.
-    if (typeof needs_checklist !== "boolean") {
+    // The service decides it when the firm has marked it Checklist or Simple job (catalogue);
+    // otherwise (Gap #78) the person creating the job must say so.
+    const fixedJobType = service_type_id ? (await getJobTypes())[service_type_id] : undefined;
+    const needsChecklist: boolean | undefined = fixedJobType ? fixedJobType === "checklist" : needs_checklist;
+    if (typeof needsChecklist !== "boolean") {
       return NextResponse.json(
         { error: "Choose whether this job needs a checklist (Yes or No)." },
         { status: 422 }
@@ -275,7 +281,7 @@ export async function POST(req: NextRequest) {
       // Gap #78: a job with no checklist gets one ordinary task, so assigning, review,
       // approval, delay reasons and payroll readiness all work as for any other task.
       // Its due date is the end of the period.
-      const simpleJob = needs_checklist === false;
+      const simpleJob = needsChecklist === false;
       if (simpleJob) {
         await client.query(
           `INSERT INTO task_instances
@@ -299,12 +305,44 @@ export async function POST(req: NextRequest) {
           service_type_id: { before: null, after: service_type_id },
           billing_entity_id: { before: null, after: billing_entity_id },
           status: { before: null, after: "draft" },
-          ...(needs_checklist === false ? { checklist: { before: null, after: "none (simple job)" } } : {}),
+          ...(needsChecklist === false ? { checklist: { before: null, after: "none (simple job)" } } : {}),
         },
         user_id: user.id,
         ip_address: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
         user_agent: req.headers.get("user-agent"),
       });
+
+      // A checklist job gets its checklist at once when the service and client point to one
+      // (statutory audit by entity type, internal audit by client, OEM audit by brand). If not,
+      // or if loading fails, the job is still created and a library can be picked on its page.
+      let checklist: { loaded: true; library: string; tasks_created: number } | { loaded: false; note: string } | null = null;
+      if (needsChecklist) {
+        try {
+          const pick = await pickLibraryFor(serviceType.name, client_id);
+          if (pick) {
+            const r = await instantiateLibraryOnEngagement(created.id, pick.id);
+            await createAuditLog({
+              action: "instantiate_library",
+              entity_type: "engagement",
+              entity_id: created.id,
+              field_changes: {
+                task_library_id: { before: null, after: pick.id },
+                tasks_created: { before: null, after: r.tasks_created },
+                chosen_by: { before: null, after: "automatic, from the service and client" },
+              },
+              user_id: user.id,
+              ip_address: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+              user_agent: req.headers.get("user-agent"),
+            });
+            checklist = { loaded: true, library: pick.name, tasks_created: r.tasks_created };
+          } else {
+            checklist = { loaded: false, note: "No checklist matches this service and client. Pick one on the job page." };
+          }
+        } catch (libErr) {
+          console.error("auto checklist failed:", libErr);
+          checklist = { loaded: false, note: "The checklist could not be loaded automatically. Pick one on the job page." };
+        }
+      }
 
       return NextResponse.json(
         {
@@ -312,6 +350,7 @@ export async function POST(req: NextRequest) {
           engagement_code: created.engagement_code,
           status: created.status,
           created_at: created.created_at,
+          checklist,
         },
         { status: 201 }
       );

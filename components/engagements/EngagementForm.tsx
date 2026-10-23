@@ -81,6 +81,12 @@ export function EngagementForm({
     name: "team",
   });
 
+  // The firm marks each service as a checklist job or a simple job (Service Type Catalogue); when it
+  // has, that choice is made for the person creating the job.
+  const watchedService = form.watch("service_type_id");
+  const lockedJobType = serviceTypes.find((x) => x.id === watchedService)?.job_type;
+  const jobTypeLocked = lockedJobType === "checklist" || lockedJobType === "simple";
+
   useEffect(() => {
     const fetcher = (url: string) =>
       fetch(url).then((r) => r.json());
@@ -154,6 +160,9 @@ export function EngagementForm({
                     field.onChange(v);
                     // Start the agreed fee from the service's standard fee, unless someone has typed their own.
                     const st = serviceTypes.find((x) => x.id === v);
+                    const jobType = st ? (st as Record<string, unknown>).job_type : null;
+                    if (jobType === "checklist") form.setValue("needs_checklist", true, { shouldValidate: true });
+                    else if (jobType === "simple") form.setValue("needs_checklist", false, { shouldValidate: true });
                     const raw = st ? Number((st as Record<string, unknown>).standard_fee) : NaN;
                     const standard = Number.isFinite(raw) && raw > 0 ? raw : null;
                     const typed = form.getValues("agreed_fee");
@@ -345,10 +354,13 @@ export function EngagementForm({
             <FormItem className="rounded-md border border-border p-3 space-y-2">
               <FormLabel>Does this job need a checklist? *</FormLabel>
               <p className="text-xs text-muted-foreground">
-                Choose one. A one-step job such as a certificate needs no checklist: it becomes a single job that one person does and a reviewer approves.
+                {jobTypeLocked
+                  ? `Set by the service: this one is ${lockedJobType === "checklist" ? "a checklist job" : "a simple job"}. The Managing Partner or Admin can change it in the Service Type Catalogue.`
+                  : "Choose one. A one-step job such as a certificate needs no checklist: it becomes a single job that one person does and a reviewer approves."}
               </p>
               <FormControl>
                 <RadioGroup
+                  disabled={jobTypeLocked}
                   value={field.value === undefined ? "" : field.value ? "yes" : "no"}
                   onValueChange={(v) => field.onChange(v === "yes")}
                   className="flex flex-col sm:flex-row gap-3"

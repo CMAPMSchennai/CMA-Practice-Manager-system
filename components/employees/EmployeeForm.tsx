@@ -284,8 +284,9 @@ export function EmployeeForm({ mode = "create", employeeId, initial, payVisible 
     if (articled) {
       const srnChanged = !edit || v.icai_registration_no !== s(init.icai_registration_no);
       const srn = v.icai_registration_no.trim().toUpperCase();
-      if (!srn) e.icai_registration_no = "Enter the ICAI SRN.";
-      else if (srnChanged && !SRN_PREFIXES.some((p) => srn.startsWith(p))) e.icai_registration_no = `SRN starts with ${SRN_PREFIXES.join(", ")}.`;
+      // The firm's CMA students have no ICAI SRN (reply of 21 Oct 2026), so it is optional;
+      // when one is typed it must still look right.
+      if (srn && srnChanged && !SRN_PREFIXES.some((p) => srn.startsWith(p))) e.icai_registration_no = `SRN starts with ${SRN_PREFIXES.join(", ")}.`;
       if (!v.articleship_start_date) e.articleship_start_date = "Enter the articleship start date.";
       if (!v.itt_completed) e.itt_completed = "Choose Yes, No or Not applicable.";
       else if (v.itt_completed === "yes" && !v.itt_date) e.itt_date = "Enter the ITT completion date.";
@@ -572,7 +573,7 @@ export function EmployeeForm({ mode = "create", employeeId, initial, payVisible 
             </Field>
           )}
           {articled && (
-            <Field id="icai_registration_no" label="ICAI SRN" required error={errors.icai_registration_no} hint="Starts with UXL, WRO, SRO, ERO, CRO or NRO.">
+            <Field id="icai_registration_no" label="ICAI SRN" error={errors.icai_registration_no} hint="Starts with UXL, WRO, SRO, ERO, CRO or NRO. Leave blank for CMA students, who have no SRN.">
               {input("icai_registration_no", { placeholder: "e.g. SRO1234567" })}
             </Field>
           )}
