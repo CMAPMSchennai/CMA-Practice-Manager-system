@@ -83,6 +83,11 @@ export function EngagementForm({
 
   // The firm marks each service as a checklist job or a simple job (Service Type Catalogue); when it
   // has, that choice is made for the person creating the job.
+  // The service list is shown A to Z.
+  const sortedServiceTypes = [...serviceTypes].sort((a, b) =>
+    a.name.trim().localeCompare(b.name.trim(), undefined, { sensitivity: "base", numeric: true }),
+  );
+
   const watchedService = form.watch("service_type_id");
   const lockedJobType = serviceTypes.find((x) => x.id === watchedService)?.job_type;
   const jobTypeLocked = lockedJobType === "checklist" || lockedJobType === "simple";
@@ -182,7 +187,7 @@ export function EngagementForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {serviceTypes.map((st) => (
+                    {sortedServiceTypes.map((st) => (
                       <SelectItem key={st.id} value={st.id}>
                         {st.name}
                       </SelectItem>
