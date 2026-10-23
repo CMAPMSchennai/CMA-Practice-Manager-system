@@ -163,6 +163,8 @@ export function EngagementForm({
                     const jobType = st ? (st as Record<string, unknown>).job_type : null;
                     if (jobType === "checklist") form.setValue("needs_checklist", true, { shouldValidate: true });
                     else if (jobType === "simple") form.setValue("needs_checklist", false, { shouldValidate: true });
+                    // A service with no setting asks again, so a choice made for the last service does not carry over.
+                    else form.setValue("needs_checklist", undefined as unknown as boolean);
                     const raw = st ? Number((st as Record<string, unknown>).standard_fee) : NaN;
                     const standard = Number.isFinite(raw) && raw > 0 ? raw : null;
                     const typed = form.getValues("agreed_fee");
@@ -347,6 +349,14 @@ export function EngagementForm({
           )}
         />
 
+        {jobTypeLocked && (
+          <p className="text-xs text-muted-foreground">
+            {lockedJobType === "checklist"
+              ? "Checklist job: its checklist loads automatically when the job is created."
+              : "Simple job: one task, no checklist."}
+          </p>
+        )}
+        {!jobTypeLocked && (
         <FormField
           control={form.control}
           name="needs_checklist"
@@ -379,6 +389,7 @@ export function EngagementForm({
             </FormItem>
           )}
         />
+        )}
 
         <FormField
           control={form.control}
